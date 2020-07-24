@@ -6,6 +6,11 @@ import main.java.match.algebra.Either;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class FileNameResolver {
     private final boolean prints;
@@ -327,7 +332,7 @@ public class FileNameResolver {
     }
 
     /**
-     * get 'Resolved Ratio' of the parser, indicating length of parsable content of the file name.
+     * Get 'Resolved Ratio' of the parser, indicating length of parsable content of the file name.
      * @return Resolved Ratio
      */
     public float resolvedRatio() {
@@ -342,6 +347,16 @@ public class FileNameResolver {
      */
     public int possibleSegments() {
         return !error ? segmentCount : countOf_ + 1;
+    }
+
+
+    /**
+     *
+     * @param criteria
+     * @return
+     */
+    public Stream<Boolean> validate(List<Predicate<? super String>> criteria) {
+        return IntStream.range(0, name.length).mapToObj(i -> {Predicate<? super String> p;return (null == (p = i < criteria.size() ? criteria.get(i) : null)) ? Boolean.TRUE : p.test(name[i]);});
     }
 
     /**
@@ -371,10 +386,11 @@ public class FileNameResolver {
     }
 
     /**
-     * Get the result (Ideally an array inside a {@code Either}).
+     * Get the result (Ideally an array inside a {@code Either}), must be called at finish stage.
      * @return the result. note this method use a {@code Either} return type, basically
      * translating to a Fail-Success result. {@code Either::left} indicating a failure and {@code Either::right}
      * indicating a success, the returned array inside the right of {@code Either<String, String[]>}
+     * @throws UnsupportedOperationException when parsing is not done
      */
     public Either<String, String[]> resolved() {
         if (finished) if (error)

@@ -5,6 +5,10 @@ import main.java.annotations.Internal;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public final class FailFastResolver {
     private       StringBuffer buffer;
@@ -325,6 +329,15 @@ public final class FailFastResolver {
     }
 
     /**
+     *
+     * @param criteria
+     * @return
+     */
+    public Stream<Boolean> validate(List<Predicate<? super String>> criteria) {
+        return IntStream.range(0, name.length).mapToObj(i -> {Predicate<? super String> p;return (null == (p = i < criteria.size() ? criteria.get(i) : null)) ? Boolean.TRUE : p.test(name[i]);});
+    }
+
+    /**
      * Resolve(parse) the file name.
      * @return this
      */
@@ -347,8 +360,9 @@ public final class FailFastResolver {
     }
 
     /**
-     * Get the result.
+     * Get the result, must be called at finish stage.
      * @return the result.
+     * @throws UnsupportedOperationException when parsing is not done
      */
     public String[] resolved() {
         if (finished) return name;
