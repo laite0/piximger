@@ -351,12 +351,16 @@ public class FileNameResolver {
 
 
     /**
-     *
-     * @param criteria
-     * @return
+     * Validate if components match the given criteria. Returns an empty stream if error occurred
+     * during the parse. Otherwise returns an sequential ordered stream containing validation
+     * result. {@link Boolean#TRUE} if the component at its index matches corresponding criterion
+     *  or either the the criterion is out-of-index or leaves {@code null}. {@link Boolean#FALSE}
+     * if the component at its index does not matches corresponding criterion.
+     * @param criteria the criteria against which the components match
+     * @return an sequential ordered stream containing validation result.
      */
     public Stream<Boolean> validate(List<Predicate<? super String>> criteria) {
-        return IntStream.range(0, name.length).mapToObj(i -> {Predicate<? super String> p;return (null == (p = i < criteria.size() ? criteria.get(i) : null)) ? Boolean.TRUE : p.test(name[i]);});
+        return error ? Stream.empty() : IntStream.range(0, name.length).mapToObj(i -> {Predicate<? super String> p;return null == (p = i < criteria.size() ? criteria.get(i) : null) || p.test(name[i]);});
     }
 
     /**
