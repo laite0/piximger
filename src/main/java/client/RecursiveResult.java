@@ -10,6 +10,7 @@ public /*sealed*/ interface RecursiveResult /*permits Layer, Str*/ {
         public Layer {
             Objects.requireNonNull(value);
         }
+
         public final String[] flattened() {
             var strList = new ArrayList<String>(value.length);
             parse(strList, value);
@@ -27,9 +28,25 @@ public /*sealed*/ interface RecursiveResult /*permits Layer, Str*/ {
                 else throw new IllegalArgumentException("?? Type " + r.getClass().toString());
             }
         }
+
+        @Override
+        public String toString() {
+            var sb = new StringBuilder(value.length * 9);//a typical factor of tw and pixiv raw fn
+            for (var r : value) {
+                if (r instanceof Str s) sb.append(s.value);
+                else if (r instanceof Layer l) sb.append('{').append(l.toString()).append('}');
+                else throw new IllegalArgumentException("?? Type " + r.getClass().toString());
+                sb.append('_');
+            }
+            return sb.deleteCharAt(sb.length() - 1).toString();
+        }
     }
 
-    record Str(String value) implements RecursiveResult {}
+    record Str(String value) implements RecursiveResult {
+        public String toString() {
+            return value;
+        }
+    }
 
     //TestOnly
     static void main(String[] args) {
@@ -50,5 +67,6 @@ public /*sealed*/ interface RecursiveResult /*permits Layer, Str*/ {
                         )
                 );
         System.out.println(Arrays.toString(l.flattened()));
+        System.out.println(l.toString());
     }
 }
