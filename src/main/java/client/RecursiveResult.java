@@ -20,17 +20,11 @@ public /*sealed*/ interface RecursiveResult /*permits Layer, Str*/ {
             return value.length;
         }
 
-        final void parse(ArrayList<String> strList, RecursiveResult[] value) {
+        static void parse(ArrayList<String> strList, RecursiveResult[] value) {
             for (var r : value) {
-                if (r instanceof Str s) {
-                    strList.add(s.value);
-                    continue;
-                }
-                if (r instanceof Layer l) {
-                    parse(strList, l.value);
-                    continue;
-                }
-                throw new IllegalArgumentException("?? Type" + r.getClass().toString());
+                if (r instanceof Str s) strList.add(s.value);
+                else if (r instanceof Layer l) parse(strList, l.value);
+                else throw new IllegalArgumentException("?? Type " + r.getClass().toString());
             }
         }
     }
